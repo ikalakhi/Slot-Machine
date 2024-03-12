@@ -98,9 +98,62 @@ const transpose = (reels) => {
     return rows;
 }
 
+const printRows = (rows) => {
+    for(const row of rows) {
+        let rowStirng = "";
+        for(const [i, symbol] of row.entries()) {
+            rowStirng += symbol;
+            if(i != row.length - 1) {
+                rowStirng += " | ";
+            }
+        }
+        console.log(rowStirng);
+    }
+}
 
-let balance = deposit();
-const numberofLines = getNumberOfLines();
-const getbet = getBet(balance, numberofLines);
+const getWinnings = (rows, bet, lines) => {
+    let winnings = 0;
 
-console.log(spin());
+    for (let row = 0; row < lines; row++) {
+        const symbols = rows[row];
+        let allSame = true;
+
+        for (const symbol of symbols) {
+            if (symbol != symbols[0]) {
+                allSame = false;
+                break;
+            }
+        }
+        if(allSame) {
+            winnings += bet * SYMBOLS_VALUES[symbols[0]];
+        }
+    }
+    return winnings;
+}
+
+
+const game = () => {
+    let balance = deposit();
+    while (true) {
+        console.log("You balance is $" + balance)
+        const numberofLines = getNumberOfLines();
+        const Bet = getBet(balance, numberofLines);
+        balance -= Bet * numberofLines;
+        const reels = spin();
+        const rows = transpose(reels);
+        printRows(rows);
+        const winnings = getWinnings(rows, Bet, numberofLines);
+        balance += winnings;
+        console.log("You won $" + winnings.toString());
+
+        if (balance <= 0) {
+            console.log("You ran out of money!");
+            break;
+        }
+
+        const playAgain = prompt("Do you want to play again (y/n)?");
+        if(playAgain != "y")  break;
+    }
+}
+
+game();
